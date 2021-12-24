@@ -309,7 +309,7 @@ namespace ImageFilters
                     int WW;
                     Zmax = window1d[8];
                     Zmin = window1d[0];
-                    Zxy = window[i, j];
+                    Zxy = array[i, j];
                     int A1 = Zmed - Zmin;
                     int A2 = Zmax - Zmed;
                     if (A1 > 0 && A2 > 0)
