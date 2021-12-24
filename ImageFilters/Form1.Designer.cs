@@ -35,6 +35,7 @@ namespace ImageFilters
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -42,7 +43,7 @@ namespace ImageFilters
             // pictureBox1
             // 
             this.pictureBox1.Location = new System.Drawing.Point(25, 195);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(399, 361);
             this.pictureBox1.TabIndex = 0;
@@ -52,7 +53,7 @@ namespace ImageFilters
             // 
             this.btnOpen.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOpen.Location = new System.Drawing.Point(16, 564);
-            this.btnOpen.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnOpen.Margin = new System.Windows.Forms.Padding(4);
             this.btnOpen.Name = "btnOpen";
             this.btnOpen.Size = new System.Drawing.Size(168, 76);
             this.btnOpen.TabIndex = 2;
@@ -64,7 +65,7 @@ namespace ImageFilters
             // 
             this.btnZGraph.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnZGraph.Location = new System.Drawing.Point(25, 13);
-            this.btnZGraph.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnZGraph.Margin = new System.Windows.Forms.Padding(4);
             this.btnZGraph.Name = "btnZGraph";
             this.btnZGraph.Size = new System.Drawing.Size(109, 67);
             this.btnZGraph.TabIndex = 3;
@@ -111,11 +112,23 @@ namespace ImageFilters
             this.pictureBox2.TabIndex = 0;
             this.pictureBox2.TabStop = false;
             // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(167, 80);
+            this.progressBar1.MarqueeAnimationSpeed = 1;
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(560, 23);
+            this.progressBar1.Step = 1;
+            this.progressBar1.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.progressBar1.TabIndex = 6;
+            this.progressBar1.UseWaitCursor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(901, 649);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
@@ -123,7 +136,7 @@ namespace ImageFilters
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.pictureBox1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
             this.Text = "Image Filters...";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -142,6 +155,7 @@ namespace ImageFilters
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.ProgressBar progressBar1;
     }
 }
 

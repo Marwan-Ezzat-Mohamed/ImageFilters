@@ -63,6 +63,7 @@ namespace ImageFilters
             //Console.WriteLine(array2D.GetLength(1)) =4;
             int[,] window = new int[windowHight, windowWidth];
             //loop through each value in the array
+            double prog = 0;
             for (int i = 0; i < array2D.GetLength(0); i++)
             {
                 for (int j = 0; j < array2D.GetLength(1); j++)
@@ -143,11 +144,18 @@ namespace ImageFilters
                      /*Console.WriteLine("{0}\n", average);
                      Console.WriteLine("---------------------------------\n");*/
 
+
+
                 }
-                    Console.WriteLine("---------***************--\n");
+
+
+                prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
+                progressBar1.Value =(int)prog ;
+                
 
             }
-            Console.WriteLine("---------------------------------\n");
+            
+            Console.WriteLine("---------***************--\n");
             ImageOperations.DisplayImage(array2D, pictureBox2);
 
             //Console.ReadLine();
