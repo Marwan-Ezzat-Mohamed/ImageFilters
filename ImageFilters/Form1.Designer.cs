@@ -36,6 +36,7 @@ namespace ImageFilters
             this.label2 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.adaptive_Median = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
@@ -75,7 +76,7 @@ namespace ImageFilters
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(635, 587);
+            this.button1.Location = new System.Drawing.Point(358, 587);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 37);
             this.button1.TabIndex = 4;
@@ -123,11 +124,22 @@ namespace ImageFilters
             this.progressBar1.TabIndex = 6;
             this.progressBar1.UseWaitCursor = true;
             // 
+            // adaptive_Median
+            // 
+            this.adaptive_Median.Location = new System.Drawing.Point(623, 594);
+            this.adaptive_Median.Name = "adaptive_Median";
+            this.adaptive_Median.Size = new System.Drawing.Size(189, 43);
+            this.adaptive_Median.TabIndex = 7;
+            this.adaptive_Median.Text = "Adabtive median";
+            this.adaptive_Median.UseVisualStyleBackColor = true;
+            this.adaptive_Median.Click += new System.EventHandler(this.adaptive_Median_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(901, 649);
+            this.Controls.Add(this.adaptive_Median);
             this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -156,6 +168,7 @@ namespace ImageFilters
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.Button adaptive_Median;
     }
 }
 

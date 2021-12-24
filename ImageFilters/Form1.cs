@@ -18,6 +18,45 @@ namespace ImageFilters
 
         byte[,] ImageMatrix;
 
+        static int[] countingsort(int[] Array)
+        {
+            int n = Array.Length;
+            int max = 0;
+            //find largest element in the Array
+            for (int i = 0; i < n; i++)
+            {
+                if (max < Array[i])
+                {
+                    max = Array[i];
+                }
+            }
+
+            //Create a freq array to store number of occurrences of 
+            //each unique elements in the given array 
+            int[] freq = new int[max + 1];
+            for (int i = 0; i < max + 1; i++)
+            {
+                freq[i] = 0;
+            }
+            for (int i = 0; i < n; i++)
+            {
+                freq[Array[i]]++;
+            }
+
+            //sort the given array using freq array
+            for (int i = 0, j = 0; i <= max; i++)
+            {
+                while (freq[i] > 0)
+                {
+                    Array[j] = i;
+                    j++;
+                    freq[i]--;
+                }
+            }
+
+            return Array;
+        }
+
         private void btnOpen_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -193,6 +232,85 @@ namespace ImageFilters
         {
             minaaa();
             
+        }
+
+        
+        private void adaptive_Median_Click(object sender, EventArgs e)
+        {
+
+
+            ImageConverter converter = new ImageConverter();
+
+
+            byte[,] array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
+
+            int windowHight = 3, windowWidth = 3;
+
+            int[,] window = new int[windowHight, windowWidth];
+
+
+            double prog = 0;
+            for (int i = 0; i < array2D.GetLength(0); i++)
+            {
+                for (int j = 0; j < array2D.GetLength(1); j++)
+                {
+                    //start from the middle of the window and fill the window 
+                    for (int k = 0; k < window.GetLength(0); k++)
+                    {
+                        for (int l = 0; l < window.GetLength(1); l++)
+                        {
+                            //check if the window value is not out of the array
+                            if (i + k - 1 >= 0 && i + k - 1 < array2D.GetLength(0) && j + l - 1 >= 0 && j + l - 1 < array2D.GetLength(1))
+                            {
+                                //put the value in the window
+                                window[k, l] = array2D[i + k - 1, j + l - 1];
+                            }
+                            else
+                            {
+                                window[k, l] = 0;
+                            }
+                        }
+                    }
+
+
+                    //loop through the window and print the values
+                    int[] window1d = new int[windowHight * windowWidth];
+                    int kk = 0;
+                    for (int k = 0; k < window.GetLength(0); k++)
+                    {
+                        for (int l = 0; l < window.GetLength(1); l++)
+                        {
+                            window1d[kk] = window[k, l];
+                            kk++;
+                        }
+                        //Console.WriteLine();
+                    }
+
+                    countingsort(window1d);
+
+                    //for (int k = 0; k < window1d.Length; k++)
+                    //{
+                        int index;
+                        if (window1d.Length % 2 == 0)
+                        {
+                            index = window1d.Length / 2;
+                        }
+                        else
+                            index = (window1d.Length + 1) / 2;
+                    //}
+
+                    array2D[i, j] = (byte)window1d[index];
+
+                }
+                prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
+                progressBar1.Value = (int)prog;
+
+            }
+            Console.WriteLine("---------***************--\n");
+            ImageOperations.DisplayImage(array2D, pictureBox2);
+
+
+
         }
     }
 }
