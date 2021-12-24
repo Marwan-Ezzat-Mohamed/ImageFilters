@@ -234,7 +234,7 @@ namespace ImageFilters
             
         }
 
-        
+
         private void adaptive_Median_Click(object sender, EventArgs e)
         {
 
@@ -247,7 +247,7 @@ namespace ImageFilters
             int windowHight = 3, windowWidth = 3;
 
             int[,] window = new int[windowHight, windowWidth];
-
+           
 
             double prog = 0;
             for (int i = 0; i < array2D.GetLength(0); i++)
@@ -275,6 +275,7 @@ namespace ImageFilters
 
                     //loop through the window and print the values
                     int[] window1d = new int[windowHight * windowWidth];
+
                     int kk = 0;
                     for (int k = 0; k < window.GetLength(0); k++)
                     {
@@ -290,17 +291,63 @@ namespace ImageFilters
 
                     //for (int k = 0; k < window1d.Length; k++)
                     //{
-                        int index;
-                        if (window1d.Length % 2 == 0)
-                        {
-                            index = window1d.Length / 2;
-                        }
-                        else
-                            index = (window1d.Length + 1) / 2;
+                      int index;
+                      if (window1d.Length % 2 == 0)
+                      {
+                          index = window1d.Length / 2;
+                      }
+                      else
+                          index = (window1d.Length + 1) / 2;
                     //}
 
-                    array2D[i, j] = (byte)window1d[index];
+                    int Zmax;
+                    int Zmin;
+                    int Zxy;
+                    int Zmed = window1d[index];
+                    double NewPixelValue=0.0;
+                    int WH;
+                    int WW;
+                    Zmax = window1d[8];
+                    Zmin = window1d[0];
+                    Zxy = window[i, j];
+                    int A1 = Zmed - Zmin;
+                    int A2 = Zmax - Zmed;
+                    if (A1 > 0 && A2 > 0)
+                    {
+                        int B1 = Zxy - Zmin;
+                        int B2 = Zmax - Zxy;
+                        if (B1 > 0 && B2 > 0)
+                            NewPixelValue = Zxy;
+                        else
+                            NewPixelValue = Zmed;
 
+                    }
+                    else
+                    {
+                        WH = 2 + windowHight;
+                        WW = 2 + windowWidth;
+                        if (WH <= windowHight && WW <= windowWidth)
+                        {
+                            if (A1 > 0 && A2 > 0)
+                            {
+                                int B1 = Zxy - Zmin;
+                                int B2 = Zmax - Zxy;
+                                if (B1 > 0 && B2 > 0)
+                                    NewPixelValue = Zxy;
+                                else
+                                    NewPixelValue = Zmed;
+
+                            }
+                        }
+                        else
+                        {
+                            NewPixelValue = Zmed;
+                        }
+
+                    }
+                    
+
+                    array2D[i, j] = (byte)NewPixelValue;
                 }
                 prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
                 progressBar1.Value = (int)prog;
