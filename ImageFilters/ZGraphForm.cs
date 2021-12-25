@@ -127,5 +127,10 @@ namespace ZGraphTools
             // Leave a small margin around the outside of the control
             zg1.Size = new Size(this.ClientRectangle.Width - 20, this.ClientRectangle.Height - 20);
         }
+
+        private void zg1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

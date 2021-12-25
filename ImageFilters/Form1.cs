@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.IO;
+using ZGraphTools;
 
 namespace ImageFilters
 {
@@ -18,7 +14,248 @@ namespace ImageFilters
 
         byte[,] ImageMatrix;
 
-        static int[] countingsort(int[] Array)
+
+
+        private void btnOpen_Click(object sender, EventArgs e)
+        {
+
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "PNG|*.png";
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                //Open the browsed image and display it
+                string OpenedFilePath = openFileDialog1.FileName;
+                ImageMatrix = ImageOperations.OpenImage(OpenedFilePath);
+                ImageOperations.DisplayImage(ImageMatrix, pictureBox1);
+                button1.Enabled = true;
+                adaptive_Median.Enabled = true;
+
+            }
+
+        }
+
+        private int[] windowToLine(int i, int j, byte[,] array2D, int[,] window2D, int windowSize)
+        {
+            //start from the middle of the window and fill the window 
+            for (int k = 0; k < window2D.GetLength(0); k++)
+            {
+                for (int l = 0; l < window2D.GetLength(1); l++)
+                {
+                    //check if the window value is not out of the array
+                    if (i + k - 1 >= 0 && i + k - 1 < array2D.GetLength(0) && j + l - 1 >= 0 && j + l - 1 < array2D.GetLength(1))
+                    {
+                        //put the value in the window
+                        window2D[k, l] = array2D[i + k - 1, j + l - 1];
+                    }
+                    else
+                    {
+                        window2D[k, l] = 0;
+                    }
+                }
+            }
+
+
+            //loop through the window and print the values
+            int[] window1d = new int[windowSize * windowSize];
+
+            int kk = 0;
+            for (int k = 0; k < window2D.GetLength(0); k++)
+            {
+                for (int l = 0; l < window2D.GetLength(1); l++)
+                {
+                    window1d[kk] = window2D[k, l];
+                    kk++;
+                }
+                //Console.WriteLine();
+            }
+
+            return window1d;
+
+
+        }
+
+        private double adaptiveNewPixelValue(int i, int j, int[] window1d, byte[,] array2D, int windowSize)
+        {
+            int index;
+            if (window1d.Length % 2 == 0)
+                index = window1d.Length / 2;
+            else
+                index = (window1d.Length + 1) / 2;
+
+            int Zmax, Zmin, Zxy, Zmed = window1d[index], WH, WW;
+            double NewPixelValue = 0.0;
+
+            Zmax = window1d[8];
+            Zmin = window1d[0];
+            Zxy = array2D[i, j];
+            int A1 = Zmed - Zmin;
+            int A2 = Zmax - Zmed;
+            if (A1 > 0 && A2 > 0)
+            {
+                int B1 = Zxy - Zmin;
+                int B2 = Zmax - Zxy;
+                if (B1 > 0 && B2 > 0)
+                    NewPixelValue = Zxy;
+                else
+                    NewPixelValue = Zmed;
+            }
+            else
+            {
+                WH = 2 + windowSize;
+                WW = 2 + windowSize;
+                if (WH <= windowSize && WW <= windowSize)
+                {
+                    if (A1 > 0 && A2 > 0)
+                    {
+                        int B1 = Zxy - Zmin;
+                        int B2 = Zmax - Zxy;
+                        if (B1 > 0 && B2 > 0)
+                            NewPixelValue = Zxy;
+                        else
+                            NewPixelValue = Zmed;
+
+                    }
+                }
+                else
+                {
+                    NewPixelValue = Zmed;
+                }
+
+            }
+            return NewPixelValue;
+        }
+
+        private void minaaa()
+        {
+
+
+
+            ImageConverter converter = new ImageConverter();
+            var watch = new System.Diagnostics.Stopwatch();
+
+
+
+
+            for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
+            {
+                watch.Start();
+                byte[,] array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
+
+
+                //loop through each value in the array
+                int windowSize = nOfIt;
+                int[,] window = new int[windowSize, windowSize];
+                double prog = 0;
+                for (int i = 0; i < array2D.GetLength(0); i++)
+                {
+                    for (int j = 0; j < array2D.GetLength(1); j++)
+                    {
+                        //start from the middle of the window and fill the window 
+                        for (int k = 0; k < window.GetLength(0); k++)
+                        {
+                            for (int l = 0; l < window.GetLength(1); l++)
+                            {
+                                //check if the window value is not out of the array
+                                if (i + k - 1 >= 0 &&
+                                    i + k - 1 < array2D.GetLength(0) &&
+                                    j + l - 1 >= 0 &&
+                                    j + l - 1 < array2D.GetLength(1))
+                                {
+                                    //put the value in the window
+                                    window[k, l] = array2D[i + k - 1, j + l - 1];
+                                }
+                                else
+                                {
+                                    window[k, l] = 0;
+                                }
+                            }
+                        }
+
+                        //loop through the window and print the values
+                        int[] window1d = new int[windowSize * windowSize];
+                        int kk = 0;
+                        for (int k = 0; k < window.GetLength(0); k++)
+                        {
+                            for (int l = 0; l < window.GetLength(1); l++)
+                            {
+                                window1d[kk] = window[k, l];
+                                kk++;
+                            }
+                        }
+
+
+                        countingSort(window1d);
+
+
+
+                        int T = (int)numericUpDown2.Value;
+                        for (int k = 0; k < window1d.Length; k++)
+                        {
+                            //remove k smallest elemnts
+                            for (int l = 0; l < T; l++)
+                            {
+                                window1d[l] = 0;
+                            }
+                            //remove k largest elemnts
+                            for (int l = window1d.Length - 1; l >= window1d.Length - T; l--)
+                            {
+                                window1d[l] = 0;
+                            }
+                        }
+
+                        int average = 0;
+                        for (int k = 0; k < window1d.Length; k++)
+                        {
+                            average += window1d[k];
+                        }
+
+
+                        average = average / (window1d.Length - (T * 2));
+                        array2D[i, j] = (byte)average;
+                    }
+
+
+                    prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
+                    progressBar1.Value = (int)prog;
+
+
+                }
+
+                ImageOperations.DisplayImage(array2D, pictureBox2);
+                watch.Stop();
+                Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            minaaa();
+        }
+
+        private void btnZGraph_Click(object sender, EventArgs e)
+        {
+            // Make up some data points from the N, N log(N) functions
+            int N = 40;
+            double[] x_values = new double[N];
+            double[] y_values_N = new double[N];
+            double[] y_values_NLogN = new double[N];
+
+            for (int i = 0; i < N; i++)
+            {
+                x_values[i] = i;
+                y_values_N[i] = i;
+                y_values_NLogN[i] = i * Math.Log(i);
+            }
+
+            //Create a graph and add two curves to it
+            /* ZGraphForm ZGF = new ZGraphForm("Sample Graph", "N", "f(N)");
+            ZGF.add_curve("f(N) = N", x_values, y_values_N,Color.Red);
+            ZGF.add_curve("f(N) = N Log(N)", x_values, y_values_NLogN, Color.Blue);
+            ZGF.Show();*/
+        }
+
+        //// counting sort-------------------
+        static int[] countingSort(int[] Array)
         {
             int n = Array.Length;
             int max = 0;
@@ -57,183 +294,57 @@ namespace ImageFilters
             return Array;
         }
 
-        private void btnOpen_Click(object sender, EventArgs e)
+        ////counting sort --------------
+        ///
+        ///quick sort----------------
+        private static void Quick_Sort(int[] arr, int left, int right)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            if (left < right)
             {
-                //Open the browsed image and display it
-                string OpenedFilePath = openFileDialog1.FileName;
-                ImageMatrix = ImageOperations.OpenImage(OpenedFilePath);
-                ImageOperations.DisplayImage(ImageMatrix, pictureBox1);
+                int pivot = Partition(arr, left, right);
 
-            }
-        }
-
-        private void minaaa()
-        {
-
-            ImageConverter converter = new ImageConverter();
-
-
-            byte[,] array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
-
-            // ImageOperations.OpenImage("C:\\Users\\minab\\Desktop\\8.png");
-
-            /* for (int i = 0; i < buffer.GetLength(0); i++)
-             {
-                 for (int j = 0; j < buffer.GetLength(1); j++)
-                 {
-                     Console.Write(buffer[i, j] + " ");
-                 }
-                 Console.WriteLine();
-             }*/
-
-
-            int windowHight = 5, windowWidth = 5;
-
-            /*int[,] array2D = new int[,] {
-            { 1, 2, 3, 4 },
-            { 5, 6, 7, 8 },
-            { 9, 10, 11, 12 },
-            { 13, 14, 15, 16 } };*/
-
-            //Console.WriteLine(array2D.GetLength(0)) =4;
-            //Console.WriteLine(array2D.GetLength(1)) =4;
-            int[,] window = new int[windowHight, windowWidth];
-            //loop through each value in the array
-            double prog = 0;
-            for (int i = 0; i < array2D.GetLength(0); i++)
-            {
-                for (int j = 0; j < array2D.GetLength(1); j++)
+                if (pivot > 1)
                 {
-                    //start from the middle of the window and fill the window 
-                    for (int k = 0; k < window.GetLength(0); k++)
-                    {
-                        for (int l = 0; l < window.GetLength(1); l++)
-                        {
-                            //check if the window value is not out of the array
-                            if (i + k - 1 >= 0 && i + k - 1 < array2D.GetLength(0) && j + l - 1 >= 0 && j + l - 1 < array2D.GetLength(1))
-                            {
-                                //put the value in the window
-                                window[k, l] = array2D[i + k - 1, j + l - 1];
-                            }
-                            else
-                            {
-                                window[k, l] = 0;
-                            }
-                        }
-                    }
+                    Quick_Sort(arr, left, pivot - 1);
+                }
+                if (pivot + 1 < right)
+                {
+                    Quick_Sort(arr, pivot + 1, right);
+                }
+            }
 
-                    //loop through the window and print the values
-                    int[] window1d = new int[windowHight * windowWidth];
-                    int kk = 0;
-                    for (int k = 0; k < window.GetLength(0); k++)
-                    {
-                        for (int l = 0; l < window.GetLength(1); l++)
-                        {
-                            window1d[kk] = window[k, l];
-                            kk++;
-                        }
-                        //Console.WriteLine();
-                    }
+        }
+        private static int Partition(int[] arr, int left, int right)
+        {
+            int pivot = arr[left];
+            while (true)
+            {
 
-                    ////counting sort henaaaaaaaaaaaaaaaaaaaaaaaa
-                    Array.Sort(window1d);
-
-
-                    int T = 5;
-
-                    for (int k = 0; k < window1d.Length; k++)
-                    {
-                        //remove k smallest elemnts
-                        for (int l = 0; l < T; l++)
-                        {
-                            window1d[l] = 0;
-                        }
-                        //remove k largest elemnts
-                        for (int l = window1d.Length - 1; l >= window1d.Length - T; l--)
-                        {
-                            window1d[l] = 0;
-                        }
-
-                    }
-
-                    int average = 0;
-                    for (int k = 0; k < window1d.Length; k++)
-                    {
-                        average += window1d[k];
-                    }
-
-
-                    average = average / (window1d.Length - (T * 2));
-                    array2D[i, j] = (byte)average;
-
-
-
-                    //loop through the window and print the values
-                    /* for (int k = 0; k < window.GetLength(0); k++)
-                     {
-                         for (int l = 0; l < window.GetLength(1); l++)
-                         {
-                             Console.Write(window[k, l] + " ");
-                         }
-                         Console.WriteLine();
-                     }
-                     /*Console.WriteLine("{0}\n", average);
-                     Console.WriteLine("---------------------------------\n");*/
-
-
-
+                while (arr[left] < pivot)
+                {
+                    left++;
                 }
 
+                while (arr[right] > pivot)
+                {
+                    right--;
+                }
 
-                prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
-                progressBar1.Value =(int)prog ;
-                
+                if (left < right)
+                {
+                    if (arr[left] == arr[right]) return right;
 
+                    int temp = arr[left];
+                    arr[left] = arr[right];
+                    arr[right] = temp;
+                }
+                else
+                {
+                    return right;
+                }
             }
-            
-            Console.WriteLine("---------***************--\n");
-            ImageOperations.DisplayImage(array2D, pictureBox2);
-
-            //Console.ReadLine();
-
-
         }
-
-
-
-
-
-        private void btnZGraph_Click(object sender, EventArgs e)
-        {
-            // Make up some data points from the N, N log(N) functions
-            int N = 40;
-            double[] x_values = new double[N];
-            double[] y_values_N = new double[N];
-            double[] y_values_NLogN = new double[N];
-
-            for (int i = 0; i < N; i++)
-            {
-                x_values[i] = i;
-                y_values_N[i] = i;
-                y_values_NLogN[i] = i * Math.Log(i);
-            }
-
-            //Create a graph and add two curves to it
-            /* ZGraphForm ZGF = new ZGraphForm("Sample Graph", "N", "f(N)");
-            ZGF.add_curve("f(N) = N", x_values, y_values_N,Color.Red);
-            ZGF.add_curve("f(N) = N Log(N)", x_values, y_values_NLogN, Color.Blue);
-            ZGF.Show();*/
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            minaaa();
-            
-        }
-
+        ///quick sort----------------
 
         private void adaptive_Median_Click(object sender, EventArgs e)
         {
@@ -242,120 +353,93 @@ namespace ImageFilters
             ImageConverter converter = new ImageConverter();
 
 
+            var watch = new System.Diagnostics.Stopwatch();
             byte[,] array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
 
-            int windowHight = 3, windowWidth = 3;
 
-            int[,] window = new int[windowHight, windowWidth];
-           
-
-            double prog = 0;
-            for (int i = 0; i < array2D.GetLength(0); i++)
+            double[] adfqtime = new double[(int)numericUpDown1.Value / 2];
+            double[] adfctime = new double[(int)numericUpDown1.Value / 2];
+            ///Quick_Sort
+            for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
             {
-                for (int j = 0; j < array2D.GetLength(1); j++)
+                array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
+                watch.Start();
+
+                int windowSize = nOfIt;
+                int[,] window = new int[windowSize, windowSize];
+
+                for (int i = 0; i < array2D.GetLength(0); i++)
                 {
-                    //start from the middle of the window and fill the window 
-                    for (int k = 0; k < window.GetLength(0); k++)
+                    for (int j = 0; j < array2D.GetLength(1); j++)
                     {
-                        for (int l = 0; l < window.GetLength(1); l++)
-                        {
-                            //check if the window value is not out of the array
-                            if (i + k - 1 >= 0 && i + k - 1 < array2D.GetLength(0) && j + l - 1 >= 0 && j + l - 1 < array2D.GetLength(1))
-                            {
-                                //put the value in the window
-                                window[k, l] = array2D[i + k - 1, j + l - 1];
-                            }
-                            else
-                            {
-                                window[k, l] = 0;
-                            }
-                        }
+
+                        int[] window1d = windowToLine(i, j, array2D, window, windowSize);
+
+                        Quick_Sort(window1d, 0, window1d.Length - 1);
+                        //countingSort(window1d);
+
+
+                        array2D[i, j] = (byte)adaptiveNewPixelValue(i, j, window1d, array2D, windowSize);
                     }
-
-
-                    //loop through the window and print the values
-                    int[] window1d = new int[windowHight * windowWidth];
-
-                    int kk = 0;
-                    for (int k = 0; k < window.GetLength(0); k++)
-                    {
-                        for (int l = 0; l < window.GetLength(1); l++)
-                        {
-                            window1d[kk] = window[k, l];
-                            kk++;
-                        }
-                        //Console.WriteLine();
-                    }
-
-                    countingsort(window1d);
-
-                    //for (int k = 0; k < window1d.Length; k++)
-                    //{
-                      int index;
-                      if (window1d.Length % 2 == 0)
-                      {
-                          index = window1d.Length / 2;
-                      }
-                      else
-                          index = (window1d.Length + 1) / 2;
-                    //}
-
-                    int Zmax;
-                    int Zmin;
-                    int Zxy;
-                    int Zmed = window1d[index];
-                    double NewPixelValue=0.0;
-                    int WH;
-                    int WW;
-                    Zmax = window1d[8];
-                    Zmin = window1d[0];
-                    Zxy = array[i, j];
-                    int A1 = Zmed - Zmin;
-                    int A2 = Zmax - Zmed;
-                    if (A1 > 0 && A2 > 0)
-                    {
-                        int B1 = Zxy - Zmin;
-                        int B2 = Zmax - Zxy;
-                        if (B1 > 0 && B2 > 0)
-                            NewPixelValue = Zxy;
-                        else
-                            NewPixelValue = Zmed;
-
-                    }
-                    else
-                    {
-                        WH = 2 + windowHight;
-                        WW = 2 + windowWidth;
-                        if (WH <= windowHight && WW <= windowWidth)
-                        {
-                            if (A1 > 0 && A2 > 0)
-                            {
-                                int B1 = Zxy - Zmin;
-                                int B2 = Zmax - Zxy;
-                                if (B1 > 0 && B2 > 0)
-                                    NewPixelValue = Zxy;
-                                else
-                                    NewPixelValue = Zmed;
-
-                            }
-                        }
-                        else
-                        {
-                            NewPixelValue = Zmed;
-                        }
-
-                    }
-                    
-
-                    array2D[i, j] = (byte)NewPixelValue;
                 }
-                prog = (100 * (double)i / (double)(array2D.GetLength(0) - 1));
-                progressBar1.Value = (int)prog;
-
+                watch.Stop();
+                adfqtime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
+              
             }
-            Console.WriteLine("---------***************--\n");
+
+            ///countingSort
+            for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
+            {
+                array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
+                watch.Start();
+
+                int windowSize = nOfIt;
+                int[,] window = new int[windowSize, windowSize];
+
+                for (int i = 0; i < array2D.GetLength(0); i++)
+                {
+                    for (int j = 0; j < array2D.GetLength(1); j++)
+                    {
+
+                        int[] window1d = windowToLine(i, j, array2D, window, windowSize);
+
+                        //Quick_Sort(window1d, 0, window1d.Length - 1);
+                        countingSort(window1d);
+
+
+                        array2D[i, j] = (byte)adaptiveNewPixelValue(i, j, window1d, array2D, windowSize);
+                    }
+                }
+                watch.Stop();
+                adfctime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
+              
+            }
+
             ImageOperations.DisplayImage(array2D, pictureBox2);
 
+
+
+            double[] m = new double[(int)numericUpDown1.Value / 2];
+            for (int h = 0; h < (int)numericUpDown1.Value / 2; h++)
+                m[h] = h * 2 + 3;
+
+
+            ZGraphForm adfgraph = new ZGraphForm("adaptive nenene filter", "time(ms)", "window size");
+            adfgraph.add_curve("adaptive nenene curve quick", adfqtime, m, Color.Red);
+            adfgraph.add_curve("adaptive nenene curve counting", adfctime, m, Color.Blue);
+            adfgraph.Show();
+
+
+        }
+
+        private void pictureBox1_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            button1.Enabled = true;
+            adaptive_Median.Enabled = true;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
 
 
         }

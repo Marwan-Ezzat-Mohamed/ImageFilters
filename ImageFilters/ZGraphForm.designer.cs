@@ -37,7 +37,7 @@ namespace ZGraphTools
             // 
             this.zg1.EditButtons = System.Windows.Forms.MouseButtons.Left;
             this.zg1.Location = new System.Drawing.Point(16, 15);
-            this.zg1.Margin = new System.Windows.Forms.Padding(5);
+            this.zg1.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.zg1.Name = "zg1";
             this.zg1.PanModifierKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Shift | System.Windows.Forms.Keys.None)));
             this.zg1.ScrollGrace = 0D;
@@ -49,6 +49,7 @@ namespace ZGraphTools
             this.zg1.ScrollMinY2 = 0D;
             this.zg1.Size = new System.Drawing.Size(585, 366);
             this.zg1.TabIndex = 0;
+            this.zg1.Load += new System.EventHandler(this.zg1_Load);
             // 
             // zg2
             // 
@@ -71,7 +72,7 @@ namespace ZGraphTools
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(617, 395);
             this.Controls.Add(this.zg1);
-            this.Margin = new System.Windows.Forms.Padding(4);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ZGraphForm";
             this.Text = "Graph";
             this.Load += new System.EventHandler(this.Form1_Load);
