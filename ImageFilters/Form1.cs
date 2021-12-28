@@ -20,7 +20,7 @@ namespace ImageFilters
         {
 
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            openFileDialog1.Filter = "PNG|*.png";
+            openFileDialog1.Filter = "PNG|*.*";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 //Open the browsed image and display it
@@ -423,10 +423,9 @@ namespace ImageFilters
             for (int h = 0; h < (int)numericUpDown1.Value / 2; h++)
                 m[h] = h * 2 + 3;
 
-
-            ZGraphForm adfgraph = new ZGraphForm("adaptive nenene filter", "time(ms)", "window size");
-            adfgraph.add_curve("adaptive nenene curve quick", adfqtime, m, Color.Red);
-            adfgraph.add_curve("adaptive nenene curve counting", adfctime, m, Color.Blue);
+            ZGraphForm adfgraph = new ZGraphForm("adaptive median filter", "window size", "time(ms)");
+            adfgraph.add_curve("adaptive median curve quick sort", adfqtime, m, Color.Red);
+            adfgraph.add_curve("adaptive median curve counting sort", adfctime, m, Color.Blue);
             adfgraph.Show();
 
 
