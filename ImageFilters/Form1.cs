@@ -234,39 +234,7 @@ namespace ImageFilters
 
             for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
             {
-                watch.Start();
-                array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
-
-
-                //loop through each value in the array
-                int windowSize = nOfIt;
-                int[,] window = new int[windowSize, windowSize];
-                int[] alphaWindow1d = new int[windowSize * windowSize];
-
-                for (int i = 0; i < array2D.GetLength(0); i++)
-                {
-                    for (int j = 0; j < array2D.GetLength(1); j++)
-                    {
-                        cnt = 0;
-                        alphaWindow1d = windowToLine(i, j, array2D, window, windowSize);
-                        countingSort(alphaWindow1d);
-                        int T = (int)numericUpDown2.Value;
-                        double average = 0;
-                        for (int ii = T; ii < alphaWindow1d.Length - T; ii++)
-                        {
-                            average += alphaWindow1d[ii];
-                        }
-
-                        average = average / cnt;
-                        array2D[(i + nOfIt) / 2, (j + nOfIt) / 2] = (byte)average;
-
-                    }
-                }
-                watch.Stop();
-                atfctime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
-            }
-            for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
-            {
+          
                 watch.Start();
                 array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
 
@@ -289,7 +257,7 @@ namespace ImageFilters
                         for (int ii = 0; ii < T; ii++)
                         {
                             int mn = (int)1e9, mx = (int)-1e9;
-                            int mnIdx = -1, mxIdx = -1;
+                            int mnIdx = 0, mxIdx = 0;
                             for(int jj=0; jj<alphaWindow1d.Length; jj++)
                             {
                                 if(!vis[jj] && alphaWindow1d[jj] > mx)
@@ -314,21 +282,56 @@ namespace ImageFilters
                             }
                         }
 
-                        average = average / cnt;
-                        array2D[(i + nOfIt) / 2, (j + nOfIt) / 2] = (byte)average;
+                        average = average / ((windowSize * windowSize)-2*T);
+                        array2D[i, j] = (byte)average;
 
                     }
                 }
                 watch.Stop();
                 atfstime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
             }
+
+            for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
+            {
+                watch.Start();
+                array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
+
+
+                //loop through each value in the array
+                int windowSize = nOfIt;
+                int[,] window = new int[windowSize, windowSize];
+                int[] alphaWindow1d = new int[windowSize * windowSize];
+
+                for (int i = 0; i < array2D.GetLength(0); i++)
+                {
+                    for (int j = 0; j < array2D.GetLength(1); j++)
+                    {
+                        cnt = 0;
+                        alphaWindow1d = windowToLine(i, j, array2D, window, windowSize);
+                        countingSort(alphaWindow1d);
+                        int T = (int)numericUpDown2.Value;
+                        double average = 0;
+                        for (int ii = T; ii < alphaWindow1d.Length - T; ii++)
+                        {
+                            average += alphaWindow1d[ii];
+                        }
+
+                        average = average / ((windowSize * windowSize) - 2 * T);
+                        array2D[i , j] = (byte)average;
+
+                    }
+                }
+                watch.Stop();
+                atfctime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
+            }
+
             ImageOperations.DisplayImage(array2D, pictureBox2);
             double[] m = new double[(int)numericUpDown1.Value / 2];
             for (int h = 0; h < (int)numericUpDown1.Value / 2; h++)
                 m[h] = h * 2 + 3;
 
-            ZGraphForm adfgraph = new ZGraphForm("adaptive median filter", "window size", "time(ms)");
-            adfgraph.add_curve("alpha trim curve by selection", atfstime, m, Color.Red);
+            ZGraphForm adfgraph = new ZGraphForm("Alpha trim filter", "window size", "time(ms)");
+            adfgraph.add_curve("alpha trim curve by selecting Kth element", atfstime, m, Color.Red);
             adfgraph.add_curve("alpha trim curve counting sort", atfctime, m, Color.Blue);
             adfgraph.Show();
         }
