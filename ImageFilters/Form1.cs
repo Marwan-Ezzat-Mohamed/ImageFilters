@@ -166,56 +166,7 @@ namespace ImageFilters
 
         }
 
-        private double adaptiveNewPixelValue(int i, int j, int[] window1d, byte[,] array2D, int windowSize)
-        {
-            int index;
-            if (window1d.Length % 2 == 0)
-                index = window1d.Length / 2;
-            else
-                index = (window1d.Length + 1) / 2;
 
-            int Zmax, Zmin, Zxy, Zmed = window1d[index], WH, WW;
-            double NewPixelValue = 0.0;
-
-            Zmax = window1d[8];
-            Zmin = window1d[0];
-            Zxy = array2D[i, j];
-            int A1 = Zmed - Zmin;
-            int A2 = Zmax - Zmed;
-            if (A1 > 0 && A2 > 0)
-            {
-                int B1 = Zxy - Zmin;
-                int B2 = Zmax - Zxy;
-                if (B1 > 0 && B2 > 0)
-                    NewPixelValue = Zxy;
-                else
-                    NewPixelValue = Zmed;
-            }
-            else
-            {
-                WH = 2 + windowSize;
-                WW = 2 + windowSize;
-                if (WH <= windowSize && WW <= windowSize)
-                {
-                    if (A1 > 0 && A2 > 0)
-                    {
-                        int B1 = Zxy - Zmin;
-                        int B2 = Zmax - Zxy;
-                        if (B1 > 0 && B2 > 0)
-                            NewPixelValue = Zxy;
-                        else
-                            NewPixelValue = Zmed;
-
-                    }
-                }
-                else
-                {
-                    NewPixelValue = Zmed;
-                }
-
-            }
-            return NewPixelValue;
-        }
 
         private void minaaa()
         {
@@ -234,7 +185,7 @@ namespace ImageFilters
 
             for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
             {
-          
+
                 watch.Start();
                 array2D = ImageOperations.ImageTo2DByteArray((Bitmap)pictureBox1.Image);
 
@@ -243,7 +194,7 @@ namespace ImageFilters
                 int windowSize = nOfIt;
                 int[,] window = new int[windowSize, windowSize];
                 int[] alphaWindow1d = new int[windowSize * windowSize];
-                bool [] vis = new bool[windowSize*windowSize];
+                bool[] vis = new bool[windowSize * windowSize];
 
                 for (int i = 0; i < array2D.GetLength(0); i++)
                 {
@@ -258,11 +209,11 @@ namespace ImageFilters
                         {
                             int mn = (int)1e9, mx = (int)-1e9;
                             int mnIdx = 0, mxIdx = 0;
-                            for(int jj=0; jj<alphaWindow1d.Length; jj++)
+                            for (int jj = 0; jj < alphaWindow1d.Length; jj++)
                             {
-                                if(!vis[jj] && alphaWindow1d[jj] > mx)
+                                if (!vis[jj] && alphaWindow1d[jj] > mx)
                                 {
-                                    mxIdx = jj; 
+                                    mxIdx = jj;
                                     mx = alphaWindow1d[jj];
                                 }
                                 if (!vis[jj] && alphaWindow1d[jj] < mn)
@@ -274,7 +225,7 @@ namespace ImageFilters
                             vis[mxIdx] = true;
                             vis[mnIdx] = true;
                         }
-                        for(int ii = 0; ii < alphaWindow1d.Length; ii++)
+                        for (int ii = 0; ii < alphaWindow1d.Length; ii++)
                         {
                             if (!vis[ii])
                             {
@@ -282,7 +233,7 @@ namespace ImageFilters
                             }
                         }
 
-                        average = average / ((windowSize * windowSize)-2*T);
+                        average = average / ((windowSize * windowSize) - 2 * T);
                         array2D[i, j] = (byte)average;
 
                     }
@@ -317,7 +268,7 @@ namespace ImageFilters
                         }
 
                         average = average / ((windowSize * windowSize) - 2 * T);
-                        array2D[i , j] = (byte)average;
+                        array2D[i, j] = (byte)average;
 
                     }
                 }
@@ -331,8 +282,8 @@ namespace ImageFilters
                 m[h] = h * 2 + 3;
 
             ZGraphForm adfgraph = new ZGraphForm("Alpha trim filter", "window size", "time(ms)");
-            adfgraph.add_curve("alpha trim curve by selecting Kth element", atfstime, m, Color.Red);
-            adfgraph.add_curve("alpha trim curve counting sort", atfctime, m, Color.Blue);
+            adfgraph.add_curve("alpha trim curve by selecting Kth element", m,atfstime,  Color.Red);
+            adfgraph.add_curve("alpha trim curve counting sort",m, atfctime, Color.Blue);
             adfgraph.Show();
         }
 
@@ -364,6 +315,51 @@ namespace ImageFilters
         }
 
         ///quick sort----------------
+
+
+
+        private double adaptiveNewPixelValue(int value, int[] window1d, int WS, int currentWs)
+        {
+            int index;
+            if (window1d.Length % 2 == 0)
+                index = window1d.Length / 2;
+            else
+                index = (window1d.Length + 1) / 2;
+
+            int Zmax, Zmin, Zxy, Zmed = window1d[index], WH, WW;
+            double NewPixelValue = 0.0;
+
+            Zmax = window1d[window1d.Length - 1];
+            Zmin = window1d[0];
+            Zxy = value;
+            int A1 = Zmed - Zmin;
+            int A2 = Zmax - Zmed;
+            if (A1 > 0 && A2 > 0)
+            {
+                int B1 = Zxy - Zmin;
+                int B2 = Zmax - Zxy;
+                if (B1 > 0 && B2 > 0)
+                {
+                    return Zxy;
+                }
+                else
+                {
+                    if (2 + currentWs <= WS)
+                    {
+                        return adaptiveNewPixelValue(value, window1d, WS, currentWs + 2);
+                    }
+                    else
+                    {
+                        return Zmed;
+                    }
+                }
+            }
+            else
+            {
+                return Zmed;
+            }
+
+        }
 
         private void adaptive_Median_Click(object sender, EventArgs e)
         {
@@ -398,13 +394,15 @@ namespace ImageFilters
                         //countingSort(window1d);
 
 
-                        array2D[i, j] = (byte)adaptiveNewPixelValue(i, j, window1d, array2D, windowSize);
+                        array2D[i, j] = (byte)adaptiveNewPixelValue(array2D[i, j], window1d, (int)numericUpDown1.Value, nOfIt);
                     }
                 }
                 watch.Stop();
                 adfqtime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
 
             }
+
+
 
             ///countingSort
             for (int nOfIt = 3; nOfIt <= (int)numericUpDown1.Value; nOfIt += 2)
@@ -426,7 +424,7 @@ namespace ImageFilters
                         countingSort(window1d);
 
 
-                        array2D[i, j] = (byte)adaptiveNewPixelValue(i, j, window1d, array2D, windowSize);
+                        array2D[i, j] = (byte)adaptiveNewPixelValue(array2D[i, j], window1d, (int)numericUpDown1.Value, nOfIt);
                     }
                 }
                 watch.Stop();
@@ -443,8 +441,8 @@ namespace ImageFilters
                 m[h] = h * 2 + 3;
 
             ZGraphForm adfgraph = new ZGraphForm("adaptive median filter", "window size", "time(ms)");
-            adfgraph.add_curve("adaptive median curve quick sort", adfqtime, m, Color.Red);
-            adfgraph.add_curve("adaptive median curve counting sort", adfctime, m, Color.Blue);
+            adfgraph.add_curve("adaptive median curve quick sort", m,adfqtime, Color.Red);
+            adfgraph.add_curve("adaptive median curve counting sort",m, adfctime, Color.Blue);
             adfgraph.Show();
 
 
