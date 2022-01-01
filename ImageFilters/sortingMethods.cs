@@ -8,66 +8,36 @@ namespace ImageFilters
     {
 
         //// counting sort-------------------
+        ///  
         public static int[] countingSort(int[] Array)
         {
-            int n = Array.Length;
-            int max = 0;
-            //find largest element in the Array
-            for (int i = 0; i < n; i++)
+            int max = 255;
+            int min = 0;
+            int range = max - min + 1;
+            int[] count = new int[range];
+            int[] output = new int[Array.Length];
+            for (int i = 0; i < Array.Length; i++)
             {
-                if (max < Array[i])
-                {
-                    max = Array[i];
-                }
+                count[Array[i] - min]++;
             }
-
-            //Create a freq array to store number of occurrences of 
-            //each unique elements in the given array 
-            int[] freq = new int[max + 1];
-            for (int i = 0; i < max + 1; i++)
+            for (int i = 1; i < count.Length; i++)
             {
-                freq[i] = 0;
+                count[i] += count[i - 1];
             }
-            for (int i = 0; i < n; i++)
+            for (int i = Array.Length - 1; i >= 0; i--)
             {
-                freq[Array[i]]++;
+                output[count[Array[i] - min] - 1] = Array[i];
+                count[Array[i] - min]--;
             }
-
-            //sort the given array using freq array
-            for (int i = 0, j = 0; i <= max; i++)
+            for (int i = 0; i < Array.Length; i++)
             {
-                while (freq[i] > 0)
-                {
-                    Array[j] = i;
-                    j++;
-                    freq[i]--;
-                }
+                Array[i] = output[i];
             }
-
             return Array;
         }
 
 
-
-
-        ///quick sort----------------
-        public static void Quick_Sort(int[] arr, int left, int right)
-        {
-            if (left < right)
-            {
-                int pivot = Partition(arr, left, right);
-
-                if (pivot > 1)
-                {
-                    Quick_Sort(arr, left, pivot - 1);
-                }
-                if (pivot + 1 < right)
-                {
-                    Quick_Sort(arr, pivot + 1, right);
-                }
-            }
-
-        }
+        ///quick sort---------------
         public static int Partition(int[] arr, int left, int right)
         {
             int pivot = arr[left];
@@ -97,6 +67,27 @@ namespace ImageFilters
                     return right;
                 }
             }
+        }
+        ///quick sort----------------
+        //
+        public static int[] Quick_Sort(int[] arr, int left, int right)
+        {
+
+            if (left < right)
+            {
+                int pivot = Partition(arr, left, right);
+
+                if (pivot > 1)
+                {
+                    Quick_Sort(arr, left, pivot - 1);
+                }
+                if (pivot + 1 < right)
+                {
+                    Quick_Sort(arr, pivot + 1, right);
+                }
+            }
+            return arr;
+
         }
 
 

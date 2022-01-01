@@ -58,7 +58,7 @@ namespace ImageFilters
                     {
 
                         alphaWindow1d = windowToLine(i, j, array2D, window, windowSize);
-                        sortingMethods.countingSort(alphaWindow1d);
+                        alphaWindow1d = sortingMethods.countingSort(alphaWindow1d);
 
                         int T = (int)numericUpDown2.Value;
                         double average = 0;
@@ -78,7 +78,7 @@ namespace ImageFilters
                 progValue = ((double)nOfIt / (double)numericUpDown1.Value) * 50;
                 progressBar1.Value = (int)progValue;
                 progressBar1.Refresh();
-                Form.ActiveForm.Update();
+                //Form.ActiveForm.Update();
 
             }
 
@@ -96,7 +96,7 @@ namespace ImageFilters
                 int windowSize = nOfIt;
                 int[,] window = new int[windowSize, windowSize];
                 int[] alphaWindow1d = new int[windowSize * windowSize];
-                bool[] vis = new bool[windowSize * windowSize];
+             
                 for (int i = 0; i < array2D.GetLength(0); i++)
                 {
                     for (int j = 0; j < array2D.GetLength(1); j++)
@@ -106,10 +106,11 @@ namespace ImageFilters
                         //countingSort(alphaWindow1d);
                         int T = (int)numericUpDown2.Value;
                         double average = 0;
+                        bool[] vis = new bool[windowSize * windowSize];
                         for (int ii = 0; ii < T; ii++)
                         {
                             int mn = (int)1e9, mx = (int)-1e9;
-                            int mnIdx = 0, mxIdx = 0;
+                            int mnIdx = -1, mxIdx = -1;
                             for (int jj = 0; jj < alphaWindow1d.Length; jj++)
                             {
                                 if (!vis[jj] && alphaWindow1d[jj] > mx)
@@ -117,14 +118,16 @@ namespace ImageFilters
                                     mxIdx = jj;
                                     mx = alphaWindow1d[jj];
                                 }
-                                if (!vis[jj] && alphaWindow1d[jj] < mn)
+                                else if (!vis[jj] && alphaWindow1d[jj] < mn)
                                 {
                                     mnIdx = jj;
                                     mn = alphaWindow1d[jj];
                                 }
                             }
-                            vis[mxIdx] = true;
-                            vis[mnIdx] = true;
+                            if(mnIdx!=-1)
+                                vis[mnIdx] = true;
+                            if (mxIdx != -1)
+                                vis[mxIdx] = true;
                         }
                         for (int ii = 0; ii < alphaWindow1d.Length; ii++)
                         {
@@ -134,22 +137,26 @@ namespace ImageFilters
                             }
                         }
 
+
                         average = average / ((windowSize * windowSize) - 2 * T);
                         array2D[i, j] = (byte)average;
 
                     }
                 }
+
+
                 watch.Stop();
                 atfstime[nOfIt / 2 - 1] = watch.ElapsedMilliseconds;
 
-                progValue = ((double)nOfIt / (double)numericUpDown1.Value) * 50+50;
+                progValue = ((double)nOfIt / (double)numericUpDown1.Value) * 50 + 50;
                 progressBar1.Value = (int)progValue;
                 progressBar1.Refresh();
-                Form.ActiveForm.Update();
+                //Form.ActiveForm.Update();
 
             }
 
-            progLable.Text = "Done!";
+
+           
 
             ImageOperations.DisplayImage(array2D, pictureBox2);
             double[] m = new double[(int)numericUpDown1.Value / 2];
@@ -182,13 +189,13 @@ namespace ImageFilters
 
                 int windowSize = nOfIt;
                 int[,] window = new int[windowSize, windowSize];
-
+               
                 for (int i = 0; i < array2D.GetLength(0); i++)
                 {
                     for (int j = 0; j < array2D.GetLength(1); j++)
                     {
                         int[] window1d = windowToLine(i, j, array2D, window, windowSize);
-                        sortingMethods.Quick_Sort(window1d, 0, window1d.Length - 1);
+                        window1d = sortingMethods.Quick_Sort(window1d, 0, window1d.Length - 1);
                         array2D[i, j] = (byte)adaptiveNewPixelValue(array2D[i, j], window1d, (int)numericUpDown1.Value, nOfIt);
                     }
                 }
@@ -198,7 +205,7 @@ namespace ImageFilters
                 progValue = ((double)nOfIt / (double)numericUpDown1.Value) * 50;
                 progressBar1.Value = (int)progValue;
                 progressBar1.Refresh();
-                Form.ActiveForm.Update();
+                //Form.ActiveForm.Update();
 
 
             }
@@ -221,7 +228,7 @@ namespace ImageFilters
                     {
 
                         int[] window1d = windowToLine(i, j, array2D, window, windowSize);
-                        sortingMethods.countingSort(window1d);
+                        window1d=sortingMethods.countingSort(window1d);
                         array2D[i, j] = (byte)adaptiveNewPixelValue(array2D[i, j], window1d, (int)numericUpDown1.Value, nOfIt);
                     }
                 }
@@ -231,7 +238,7 @@ namespace ImageFilters
                 progValue = ((double)nOfIt / (double)numericUpDown1.Value) * 50 + 50;
                 progressBar1.Value = (int)progValue;
                 progressBar1.Refresh();
-                Form.ActiveForm.Update();
+                //Form.ActiveForm.Update();
             }
 
             progLable.Text = "Done!";
